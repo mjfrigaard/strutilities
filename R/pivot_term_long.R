@@ -1,36 +1,28 @@
 #' Pivot a term (sentence) into a data.frame (long)
 #'
 #' @param term string, term, sentence, etc.
+#' @param sep separator pattern (set to `"[^[:alnum:]]+"`)
 #'
-#' @return data.frame with `Unique Items` and `Term`
+#' @return data.frame with `unique_items` and `term`
 #'
 #' @export
 #'
 #' @examples
 #' pivot_term_long("A large size in stockings is hard to sell.")
-pivot_term_long <- function(term) {
-    # split to remove commas and convert to vector
-    term_items <- strsplit(term, ",")[[1]]
-    # remove whitespace (both)
-    term_items <- trimws(term_items)
+#' pivot_term_long(c("A large size in stockings is hard to sell.", "The first part of the plan needs changing." ))
+pivot_term_long <- function(term, sep = "[^[:alnum:]]+") {
 
-    # unique term
-    # get individual terms
-    unique_terms <- unlist(strsplit(term, " "))
-    # remove commas
-    unique_terms <- gsub(",", "", unique_terms)
-    # get unique
-    unique_terms <- unique(unique_terms)
+  pivot_term <- function(term, sep) {
+      term_items <- unlist(strsplit(term, sep))
+      term_col <- c(term, rep(NA_character_, times = length(term_items) - 1))
+      data.frame(unique_items = term_items, term = term_col)
+  }
 
-    # create data frame from terms
-    max_length <- max(length(unique_terms), length(term_items))
-    unique_terms <- unique_terms[seq_len(max_length)]
-    term_items <- term_items[seq_len(max_length)]
-    terms_data_frame <- data.frame(
-        `Unique Items` = unique_terms,
-        `Term` = term_items,
-        stringsAsFactors = FALSE
-    )
+  if (length(term) > 1) {
+    do.call(rbind, lapply(term, pivot_term, sep = sep))
+  } else {
+    pivot_term(term = term, sep = sep)
+  }
 
-    return(terms_data_frame)
 }
+

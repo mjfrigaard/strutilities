@@ -4,17 +4,20 @@
 \alias{pivot_term_long}
 \title{Pivot a term (sentence) into a data.frame (long)}
 \usage{
-pivot_term_long(term)
+pivot_term_long(term, sep = "[^[:alnum:]]+")
 }
 \arguments{
 \item{term}{string, term, sentence, etc.}
+
+\item{sep}{separator pattern (set to \code{"[^[:alnum:]]+"})}
 }
 \value{
-data.frame with \verb{Unique Items} and \code{Term}
+data.frame with \code{unique_items} and \code{term}
 }
 \description{
 Pivot a term (sentence) into a data.frame (long)
 }
 \examples{
 pivot_term_long("A large size in stockings is hard to sell.")
+pivot_term_long(c("A large size in stockings is hard to sell.", "The first part of the plan needs changing." ))
 }

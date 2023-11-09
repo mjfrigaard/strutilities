@@ -29,23 +29,29 @@ install.packages('pak')
 pak::pak('mjfrigaard/strutilities')
 ```
 
-## Examples
+## Functions
 
-This is a basic example which shows you how to solve a common problem:
+`strutilities` has three functions (`sep_cols_mult()`, `process_text()` and `pivot_term_long()`). 
 
 ```{r example}
 library(strutilities)
+```
+
+Each function has been written in base R (to keep dependencies low).
+
+## sep_cols_mult()
+
+```{r}
 d <- data.frame(value = c(29L, 91L, 39L, 28L, 12L),
                 full_name = c("John", "John, Jacob",
                          "John, Jacob, Jingleheimer",
                          "Jingleheimer, Schmidt",
                          "JJJ, Schmidt"))
 d
-```
-
-```{r}
 sep_cols_mult(data = d, col = "full_name", col_prefix = "name")
 ```
+
+## process_text()
 
 ```{r}
 names(datasets::iris)
@@ -57,7 +63,15 @@ str(datasets::InsectSprays)
 str(process_text(datasets::InsectSprays, fct = TRUE))
 ```
 
+## pivot_term_long()
+
 ```{r}
 pivot_term_long("A large size in stockings is hard to sell.")
 ```
+
+```{r}
+terms <- c("A large size in stockings is hard to sell.", "The first part of the plan needs changing.")
+pivot_term_long(terms)
+```
+
 
