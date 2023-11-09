@@ -128,6 +128,9 @@ pivot_term_long(terms)
 
 ### Helper with fixture
 
+This test loads the fixture (`tests/testthat/fixtures/test_data.rds`)
+and uses the `test_logger()` helper in (`tests/testthat/helper.R`)
+
 ``` r
 describe(
 "Feature: Process text from dataset
@@ -182,6 +185,9 @@ describe(
 
 ### Helper without fixture
 
+This test loads the data from `palmerpenguins` directly (not using
+fixture), but also uses the helper.
+
 ``` r
 describe(
 "Feature: Process text from dataset
@@ -193,8 +199,11 @@ describe(
      Given ...
      When ...
      Then ...", code = {
+   # helper
    test_logger(start = "process_text()", msg = "names palmerpenguins::penguins_raw")
+   # data frame package
     test_data <- palmerpenguins::penguins_raw
+    # test
     processed_data <- process_text(raw_data = test_data, fct = TRUE)
     nms <- c("studyname",
             "sample_number",
