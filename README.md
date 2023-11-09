@@ -110,3 +110,122 @@ pivot_term_long(terms)
 #> 16        needs                                       <NA>
 #> 17     changing                                       <NA>
 ```
+
+## Testing
+
+    #> tests
+    #> ├── testthat
+    #> │   ├── _snaps
+    #> │   ├── fixtures
+    #> │   │   ├── make-test_data.R
+    #> │   │   └── test_data.rds
+    #> │   ├── helper.R
+    #> │   ├── setup.R
+    #> │   ├── test-pivot_term_long.R
+    #> │   ├── test-process_text.R
+    #> │   └── test-sep_cols_mult.R
+    #> └── testthat.R
+
+### Helper with fixture
+
+``` r
+describe(
+"Feature: Process text from dataset
+    As a ...
+    I want to ...
+    So that I ...", code = {
+  it(
+   "Scenario: scenario
+     Given ...
+     When ...
+     Then ...", code = {
+   # helper
+   test_logger(start = "process_text()", msg = "names penguins_raw.csv")
+   # fixture
+    test_data <- readRDS(test_path("fixtures", "test_data.rds"))
+    # test data
+    processed_data <- process_text(raw_data = test_data, fct = TRUE)
+    # expected names
+    nms <- c("studyname",
+            "sample_number",
+            "species",
+            "region",
+            "island",
+            "stage",
+            "individual_id",
+            "clutch_completion",
+            "date_egg",
+            "culmen_length_mm",
+            "culmen_depth_mm",
+            "flipper_length_mm",
+            "body_mass_g",
+            "sex",
+            "delta_15_n_o_oo",
+            "delta_13_c_o_oo",
+            "comments")
+    expect_equal(object = names(processed_data), expected = nms)
+    test_logger(end = "process_text()", msg = "names penguins_raw.csv")
+  })
+})
+```
+
+#### devtools:::test_active_file()
+
+    [ FAIL 0 | WARN 0 | SKIP 0 | PASS 0 ]
+    INFO [2023-11-09 14:59:57] [ START process_text() = names penguins_raw.csv]
+    [ FAIL 0 | WARN 0 | SKIP 0 | PASS 1 ]
+    INFO [2023-11-09 14:59:57] [ END process_text() = names penguins_raw.csv]
+
+#### devtools:::test_coverage_active_file()
+
+<img src="man/figures/coverage_fixture.png" width="80%" style="display: block; margin: auto;" />
+
+### Helper without fixture
+
+``` r
+describe(
+"Feature: Process text from dataset
+    As a ...
+    I want to ...
+    So that I ...", code = {
+  it(
+   "Scenario: scenario
+     Given ...
+     When ...
+     Then ...", code = {
+   test_logger(start = "process_text()", msg = "names palmerpenguins::penguins_raw")
+    test_data <- palmerpenguins::penguins_raw
+    processed_data <- process_text(raw_data = test_data, fct = TRUE)
+    nms <- c("studyname",
+            "sample_number",
+            "species",
+            "region",
+            "island",
+            "stage",
+            "individual_id",
+            "clutch_completion",
+            "date_egg",
+            "culmen_length_mm",
+            "culmen_depth_mm",
+            "flipper_length_mm",
+            "body_mass_g",
+            "sex",
+            "delta_15_n_o_oo",
+            "delta_13_c_o_oo",
+            "comments")
+    expect_equal(object = names(processed_data), expected = nms)
+    test_logger(end = "process_text()", msg = "names palmerpenguins::penguins_raw")
+  })
+})
+```
+
+#### devtools:::test_active_file()
+
+    [ FAIL 0 | WARN 0 | SKIP 0 | PASS 0 ]
+    INFO [2023-11-09 15:03:36] [ START process_text() = names palmerpenguins::penguins_raw]
+    [ FAIL 0 | WARN 0 | SKIP 0 | PASS 1 ]
+    INFO [2023-11-09 15:03:36] [ END process_text() = names palmerpenguins::penguins_raw]
+
+#### devtools:::test_coverage_active_file()
+
+<img src="man/figures/coverage_helper.png" width="80%" style="display: block; margin: auto;" />
