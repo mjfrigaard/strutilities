@@ -1,0 +1,63 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# `strutilities`
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+The goal of `strutilities` is to perform obscure string manipulations.
+
+## Installation
+
+You can install the development version of strutilities like so:
+
+``` r
+install.packages('pak')
+pak::pak('mjfrigaard/strutilities')
+```
+
+## Examples
+
+This is a basic example which shows you how to solve a common problem:
+
+```{r example}
+library(strutilities)
+d <- data.frame(value = c(29L, 91L, 39L, 28L, 12L),
+                full_name = c("John", "John, Jacob",
+                         "John, Jacob, Jingleheimer",
+                         "Jingleheimer, Schmidt",
+                         "JJJ, Schmidt"))
+d
+```
+
+```{r}
+sep_cols_mult(data = d, col = "full_name", col_prefix = "name")
+```
+
+```{r}
+names(datasets::iris)
+names(process_text(datasets::iris))
+```
+
+```{r}
+str(datasets::InsectSprays)
+str(process_text(datasets::InsectSprays, fct = TRUE))
+```
+
+```{r}
+pivot_term_long("A large size in stockings is hard to sell.")
+```
+
