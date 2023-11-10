@@ -69,7 +69,7 @@ Below you’ll find the structure of the `tests/` folder:
 
 In the test below, the `process_text()` function uses the source .csv
 version of `palmerpenguins::penguins_raw` as a test fixture (loaded in
-from `tests/testthat/fixtures/make-test_data.rds` and exported to
+from `tests/testthat/fixtures/make-test_data.R` and exported to
 `tests/testthat/fixtures/test_data.rds`)
 
 The test helper function (`test_logger()`) is stored in
