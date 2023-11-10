@@ -137,7 +137,7 @@ I thought it might be `it()`, so I swapped it for `test_that()`, but
 
 ### Helper without fixture (works!)
 
-I make sure it wasn’t the `process_text()` function or the helper, I
+To make sure it wasn’t the `process_text()` function or the helper, I
 also tested loading the `penguins_raw` data directly from the
 `palmerpenguins` package (i.e., not using the fixture):
 
