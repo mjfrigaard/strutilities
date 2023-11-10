@@ -17,42 +17,15 @@ install.packages('pak')
 pak::pak('mjfrigaard/strutilities')
 ```
 
-## Functions
-
-`strutilities` has three functions (`sep_cols_mult()`, `process_text()`
-and `pivot_term_long()`).
-
 ``` r
 library(strutilities)
 ```
 
-Each function has been written in base R (to keep dependencies low).
-
-## sep_cols_mult()
-
-``` r
-d <- data.frame(value = c(29L, 91L, 39L, 28L, 12L),
-                full_name = c("John", "John, Jacob",
-                         "John, Jacob, Jingleheimer",
-                         "Jingleheimer, Schmidt",
-                         "JJJ, Schmidt"))
-d
-#>   value                 full_name
-#> 1    29                      John
-#> 2    91               John, Jacob
-#> 3    39 John, Jacob, Jingleheimer
-#> 4    28     Jingleheimer, Schmidt
-#> 5    12              JJJ, Schmidt
-sep_cols_mult(data = d, col = "full_name", col_prefix = "name")
-#>   value                 full_name       name_1  name_2       name_3
-#> 1    29                      John         John    <NA>         <NA>
-#> 2    91               John, Jacob         John   Jacob         <NA>
-#> 3    39 John, Jacob, Jingleheimer         John   Jacob Jingleheimer
-#> 4    28     Jingleheimer, Schmidt Jingleheimer Schmidt         <NA>
-#> 5    12              JJJ, Schmidt          JJJ Schmidt         <NA>
-```
-
 ## process_text()
+
+`process_text()` is designed to standardize the columns names and text
+contents in a dataset (sort of a low-budget combination of a
+`janitor::clean_names()` and `map(df, tolower)`):
 
 ``` r
 names(datasets::iris)
@@ -60,6 +33,9 @@ names(datasets::iris)
 names(process_text(datasets::iris))
 #> [1] "sepal_length" "sepal_width"  "petal_length" "petal_width"  "species"
 ```
+
+It has an optional `fct` argument that will convert factors to lowercase
+characters, too.
 
 ``` r
 str(datasets::InsectSprays)
@@ -72,46 +48,9 @@ str(process_text(datasets::InsectSprays, fct = TRUE))
 #>  $ spray: chr  "a" "a" "a" "a" ...
 ```
 
-## pivot_term_long()
-
-``` r
-pivot_term_long("A large size in stockings is hard to sell.")
-#>   unique_items                                       term
-#> 1            A A large size in stockings is hard to sell.
-#> 2        large                                       <NA>
-#> 3         size                                       <NA>
-#> 4           in                                       <NA>
-#> 5    stockings                                       <NA>
-#> 6           is                                       <NA>
-#> 7         hard                                       <NA>
-#> 8           to                                       <NA>
-#> 9         sell                                       <NA>
-```
-
-``` r
-terms <- c("A large size in stockings is hard to sell.", "The first part of the plan needs changing.")
-pivot_term_long(terms)
-#>    unique_items                                       term
-#> 1             A A large size in stockings is hard to sell.
-#> 2         large                                       <NA>
-#> 3          size                                       <NA>
-#> 4            in                                       <NA>
-#> 5     stockings                                       <NA>
-#> 6            is                                       <NA>
-#> 7          hard                                       <NA>
-#> 8            to                                       <NA>
-#> 9          sell                                       <NA>
-#> 10          The The first part of the plan needs changing.
-#> 11        first                                       <NA>
-#> 12         part                                       <NA>
-#> 13           of                                       <NA>
-#> 14          the                                       <NA>
-#> 15         plan                                       <NA>
-#> 16        needs                                       <NA>
-#> 17     changing                                       <NA>
-```
-
 ## Testing
+
+Below you’ll find the structure of the `tests/` folder:
 
     #> tests
     #> ├── testthat
@@ -126,10 +65,15 @@ pivot_term_long(terms)
     #> │   └── test-sep_cols_mult.R
     #> └── testthat.R
 
-### Helper with fixture
+### Helper with fixture (issue)
 
-This test loads the fixture (`tests/testthat/fixtures/test_data.rds`)
-and uses the `test_logger()` helper in (`tests/testthat/helper.R`)
+In the test below, the `process_text()` function uses the source .csv
+version of `palmerpenguins::penguins_raw` as a test fixture (loaded in
+from `tests/testthat/fixtures/make-test_data.rds` and exported to
+`tests/testthat/fixtures/test_data.rds`)
+
+The test helper function (`test_logger()`) is stored in
+`tests/testthat/helper.R`:
 
 ``` r
 describe(
@@ -146,7 +90,7 @@ describe(
    test_logger(start = "process_text()", msg = "names penguins_raw.csv")
    # fixture
     test_data <- readRDS(test_path("fixtures", "test_data.rds"))
-    # test data
+    # observerd data
     processed_data <- process_text(raw_data = test_data, fct = TRUE)
     # expected names
     nms <- c("studyname",
@@ -174,6 +118,8 @@ describe(
 
 #### devtools:::test_active_file()
 
+As we can see below, the test runs fine (with the helper).
+
     [ FAIL 0 | WARN 0 | SKIP 0 | PASS 0 ]
     INFO [2023-11-09 14:59:57] [ START process_text() = names penguins_raw.csv]
     [ FAIL 0 | WARN 0 | SKIP 0 | PASS 1 ]
@@ -181,12 +127,19 @@ describe(
 
 #### devtools:::test_coverage_active_file()
 
+However, when I attempt to get the coverage for the test file, it shows
+0.00% :(
+
 <img src="man/figures/coverage_fixture.png" width="80%" style="display: block; margin: auto;" />
 
-### Helper without fixture
+I thought it might be `it()`, so I swapped it for `test_that()`, but
+‘same same’ :(
 
-This test loads the data from `palmerpenguins` directly (not using
-fixture), but also uses the helper.
+### Helper without fixture (works!)
+
+I make sure it wasn’t the `process_text()` function or the helper, I
+also tested loading the `penguins_raw` data directly from the
+`palmerpenguins` package (i.e., not using the fixture):
 
 ``` r
 describe(
@@ -238,3 +191,82 @@ describe(
 #### devtools:::test_coverage_active_file()
 
 <img src="man/figures/coverage_helper.png" width="80%" style="display: block; margin: auto;" />
+
+## Other functions
+
+`strutilities` has two other weird functions (`sep_cols_mult()` and
+`pivot_term_long()`) for manipulating strings/character columns (all
+written in base R to keep dependencies at a minimum).
+
+### pivot_term_long()
+
+This is an odd version of `pivot_wider()` that’s been adapted for a
+vectors:
+
+``` r
+pivot_term_long("A large size in stockings is hard to sell.")
+#>   unique_items                                       term
+#> 1            A A large size in stockings is hard to sell.
+#> 2        large                                       <NA>
+#> 3         size                                       <NA>
+#> 4           in                                       <NA>
+#> 5    stockings                                       <NA>
+#> 6           is                                       <NA>
+#> 7         hard                                       <NA>
+#> 8           to                                       <NA>
+#> 9         sell                                       <NA>
+```
+
+You can pass multiple ‘terms’ and it returns a data.frame with each
+unique term:
+
+``` r
+terms <- c("A large size in stockings is hard to sell.", "The first part of the plan needs changing.")
+pivot_term_long(terms)
+#>    unique_items                                       term
+#> 1             A A large size in stockings is hard to sell.
+#> 2         large                                       <NA>
+#> 3          size                                       <NA>
+#> 4            in                                       <NA>
+#> 5     stockings                                       <NA>
+#> 6            is                                       <NA>
+#> 7          hard                                       <NA>
+#> 8            to                                       <NA>
+#> 9          sell                                       <NA>
+#> 10          The The first part of the plan needs changing.
+#> 11        first                                       <NA>
+#> 12         part                                       <NA>
+#> 13           of                                       <NA>
+#> 14          the                                       <NA>
+#> 15         plan                                       <NA>
+#> 16        needs                                       <NA>
+#> 17     changing                                       <NA>
+```
+
+## sep_cols_mult()
+
+The is *somewhat* similar to `tidyr::separate()`, but always uses
+`"[^[:alnum:]]+"` as the `sep` and keeps all the items resulting from
+the regex.
+
+``` r
+d <- data.frame(value = c(29L, 91L, 39L, 28L, 12L),
+                full_name = c("John", "John, Jacob",
+                         "John, Jacob, Jingleheimer",
+                         "Jingleheimer, Schmidt",
+                         "JJJ, Schmidt"))
+d
+#>   value                 full_name
+#> 1    29                      John
+#> 2    91               John, Jacob
+#> 3    39 John, Jacob, Jingleheimer
+#> 4    28     Jingleheimer, Schmidt
+#> 5    12              JJJ, Schmidt
+sep_cols_mult(data = d, col = "full_name", col_prefix = "name")
+#>   value                 full_name       name_1  name_2       name_3
+#> 1    29                      John         John    <NA>         <NA>
+#> 2    91               John, Jacob         John   Jacob         <NA>
+#> 3    39 John, Jacob, Jingleheimer         John   Jacob Jingleheimer
+#> 4    28     Jingleheimer, Schmidt Jingleheimer Schmidt         <NA>
+#> 5    12              JJJ, Schmidt          JJJ Schmidt         <NA>
+```

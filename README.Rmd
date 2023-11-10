@@ -30,61 +30,40 @@ install.packages('pak')
 pak::pak('mjfrigaard/strutilities')
 ```
 
-## Functions
-
-`strutilities` has three functions (`sep_cols_mult()`, `process_text()` and `pivot_term_long()`). 
-
 ```{r example}
 library(strutilities)
 ```
 
-Each function has been written in base R (to keep dependencies low).
-
-## sep_cols_mult()
-
-```{r}
-d <- data.frame(value = c(29L, 91L, 39L, 28L, 12L),
-                full_name = c("John", "John, Jacob",
-                         "John, Jacob, Jingleheimer",
-                         "Jingleheimer, Schmidt",
-                         "JJJ, Schmidt"))
-d
-sep_cols_mult(data = d, col = "full_name", col_prefix = "name")
-```
-
 ## process_text()
+
+`process_text()` is designed to standardize the columns names and text contents in a dataset (sort of a low-budget combination of a `janitor::clean_names()` and `map(df, tolower)`):
 
 ```{r}
 names(datasets::iris)
 names(process_text(datasets::iris))
 ```
 
+It has an optional `fct` argument that will convert factors to lowercase characters, too.
+
 ```{r}
 str(datasets::InsectSprays)
 str(process_text(datasets::InsectSprays, fct = TRUE))
 ```
 
-## pivot_term_long()
-
-```{r}
-pivot_term_long("A large size in stockings is hard to sell.")
-```
-
-```{r}
-terms <- c("A large size in stockings is hard to sell.", "The first part of the plan needs changing.")
-pivot_term_long(terms)
-```
-
 ## Testing 
+
+Below you'll find the structure of the `tests/` folder:
 
 ```{r , echo=FALSE}
 fs::dir_tree("tests")
 ```
 
 
-### Helper with fixture
+### Helper with fixture (issue)
 
-This test loads the fixture (`tests/testthat/fixtures/test_data.rds`) and uses the `test_logger()` helper in (`tests/testthat/helper.R`)
+In the test below, the `process_text()` function uses the source .csv version of `palmerpenguins::penguins_raw` as a test fixture (loaded in from `tests/testthat/fixtures/make-test_data.rds` and exported to `tests/testthat/fixtures/test_data.rds`)
+
+The test helper function (`test_logger()`) is stored in `tests/testthat/helper.R`:
 
 ```{r , eval=FALSE}
 describe(
@@ -101,7 +80,7 @@ describe(
    test_logger(start = "process_text()", msg = "names penguins_raw.csv")
    # fixture
     test_data <- readRDS(test_path("fixtures", "test_data.rds"))
-    # test data
+    # observerd data
     processed_data <- process_text(raw_data = test_data, fct = TRUE)
     # expected names
     nms <- c("studyname",
@@ -129,6 +108,8 @@ describe(
 
 #### devtools:::test_active_file()
 
+As we can see below, the test runs fine (with the helper).
+
 ```
 [ FAIL 0 | WARN 0 | SKIP 0 | PASS 0 ]
 INFO [2023-11-09 14:59:57] [ START process_text() = names penguins_raw.csv]
@@ -138,13 +119,17 @@ INFO [2023-11-09 14:59:57] [ END process_text() = names penguins_raw.csv]
 
 #### devtools:::test_coverage_active_file()
 
+However, when I attempt to get the coverage for the test file, it shows 0.00% :(
+
 ```{r coverage_fixture.png, echo=FALSE}
 knitr::include_graphics("man/figures/coverage_fixture.png")
 ```
 
-### Helper without fixture
+I thought it might be `it()`, so I swapped it for `test_that()`, but 'same same' :(
 
-This test loads the data from `palmerpenguins` directly (not using fixture), but also uses the helper. 
+### Helper without fixture (works!)
+
+I make sure it wasn't the `process_text()` function or the helper, I also tested loading the `penguins_raw` data directly from the `palmerpenguins` package (i.e., not using the fixture): 
 
 ```{r , eval=FALSE}
 describe(
@@ -203,4 +188,35 @@ knitr::include_graphics("man/figures/coverage_helper.png")
 
 
  
+## Other functions 
 
+`strutilities` has two other weird functions (`sep_cols_mult()` and `pivot_term_long()`) for manipulating strings/character columns (all written in base R to keep dependencies at a minimum).
+
+### pivot_term_long()
+
+This is an odd version of `pivot_wider()` that's been adapted for a vectors:
+
+```{r}
+pivot_term_long("A large size in stockings is hard to sell.")
+```
+
+You can pass multiple 'terms' and it returns a data.frame with each unique term:
+
+```{r}
+terms <- c("A large size in stockings is hard to sell.", "The first part of the plan needs changing.")
+pivot_term_long(terms)
+```
+
+## sep_cols_mult()
+
+The is *somewhat* similar to `tidyr::separate()`, but always uses `"[^[:alnum:]]+"` as the `sep` and keeps all the items resulting from the regex.
+
+```{r}
+d <- data.frame(value = c(29L, 91L, 39L, 28L, 12L),
+                full_name = c("John", "John, Jacob",
+                         "John, Jacob, Jingleheimer",
+                         "Jingleheimer, Schmidt",
+                         "JJJ, Schmidt"))
+d
+sep_cols_mult(data = d, col = "full_name", col_prefix = "name")
+```
