@@ -50,27 +50,3 @@ sep_cols_mult <- function(data, col, pattern = "[^[:alnum:]]+", col_prefix){
   # return the final data frame
   return(out_data)
 }
-# sep_cols_mult <- function(data, col, pattern = "[^[:alnum:]]+", col_prefix){
-#   # use regex for pattern, or whatever is provided
-#   in_rgx <- pattern
-#   # convert data to data.frame
-#   in_data <- as.data.frame(data)
-#   # convert col to character vector
-#   in_col <- base::as.character(col)
-#   # split columns into character matrix
-#   out_cols <- stringr::str_split_fixed(in_data[[in_col]],
-#                                        pattern = in_rgx,
-#                                        n = Inf)
-#   # replace NAs in matrix
-#   out_cols[base::which(out_cols == "")] <- NA
-#   # get number of cols
-#   m <- base::dim(out_cols)[2]
-#   # assign column names
-#   base::colnames(out_cols) <- base::paste(col_prefix, 1:m, sep = "_")
-#   # convert to tibble
-#   out_cols <- as.data.frame(out_cols)
-#   # bind cols together
-#   out_tibble <- dplyr::bind_cols(in_data, out_cols)
-#   # return the out_tibble
-#   return(out_tibble)
-# }
